@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sygt.system.mapper.SysNoticeMapper">
+
+    <resultMap type="SysNotice" id="SysNoticeResult">
+        <result property="noticeId" column="notice_id"/>
+        <result property="noticeTitle" column="notice_title"/>
+        <result property="noticeType" column="notice_type"/>
+        <result property="noticeContent" column="notice_content"/>
+        <result property="status" column="status"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createName" column="create_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateName" column="update_name"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="linkPath" column="link_path"/>
+        <result property="roleIds" column="roleIds"/>
+        <result property="staff" column="staff"/>
+        <result property="provenance" column="provenance"/>
+        <result property="userIds" column="user_ids"/>
+        <result property="releaseStatus" column="release_status"/>
+        <result property="readStatus" column="read_status"/>
+    </resultMap>
+
+    <sql id="selectNoticeVo">
+        select notice_id, notice_title, notice_type, cast(notice_content as char) as notice_content, status, create_user_id, create_name, create_time, update_user_id, update_name, update_time, remark
+		,link_path linkPath, roleIds,staff, provenance, user_ids, release_status, read_status
+		from sys_notice
+    </sql>
+
+    <select id="selectNoticeById" parameterType="Long" resultMap="SysNoticeResult">
+        <include refid="selectNoticeVo"/>
+        where notice_id = #{noticeId}
+    </select>
+
+    <select id="selectNoticeList" resultMap="SysNoticeResult" parameterType="Long">
+        <include refid="selectNoticeVo"/>
+        <where>
+            <if test="notice.noticeTitle != null and notice.noticeTitle != ''">
+                AND notice_title like concat('%', #{notice.noticeTitle}, '%')
+            </if>
+            <if test="notice.noticeType != null and notice.noticeType != ''">
+                AND notice_type = #{notice.noticeType}
+            </if>
+            <if test="startTime != null and startTime != '' and stopTime != null and stopTime != ''">
+                and notice.create_time between #{notice.startTime} and #{notice.stopTime}
+            </if>
+            <if test="createUser != null and createUser != ''">
+                AND create_user_id = #{createUser}
+            </if>
+            <if test="roleIds!=null and roleIds.size!=0 ">
+                and (roleIds in
+                <foreach item="roleIds" collection="roleIds" open="(" separator="," close=")">
+                    #{roleIds}
+                </foreach>
+                or staff like concat('%',create_user_id, ',%')
+                )
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertNotice" parameterType="SysNotice">
+        insert into sys_notice (
+        <if test="noticeTitle != null and noticeTitle != '' ">notice_title,</if>
+        <if test="noticeType != null and noticeType != '' ">notice_type,</if>
+        <if test="noticeContent != null and noticeContent != '' ">notice_content,</if>
+        <if test="status != null and status != '' ">status,</if>
+        <if test="remark != null and remark != ''">remark,</if>
+        <if test="createUserId != null and createUserId != ''">create_user_id,</if>
+        <if test="createName != null and createName != ''">create_name,</if>
+        <if test="roleIds != null and roleIds != ''">roleIds,</if>
+        <if test="staff != null and staff != ''">staff,</if>
+        <if test="provenance != null and provenance != ''">provenance,</if>
+        <if test="userIds != null and userIds != '' ">user_ids,</if>
+        <if test="releaseStatus != null and releaseStatus != '' ">release_status,</if>
+        <if test="readStatus != null and readStatus != ''">read_status,</if>
+        <if test="linkPath != null and linkPath != ''">link_path,</if>
+        create_time
+        )values(
+        <if test="noticeTitle != null and noticeTitle != ''">#{noticeTitle},</if>
+        <if test="noticeType != null and noticeType != ''">#{noticeType},</if>
+        <if test="noticeContent != null and noticeContent != ''">#{noticeContent},</if>
+        <if test="status != null and status != ''">#{status},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        <if test="createUserId != null and createUserId != ''">#{createUserId},</if>
+        <if test="createName != null and createName != ''">#{createName},</if>
+        <if test="roleIds != null and roleIds != ''">#{roleIds},</if>
+        <if test="staff != null and staff != ''">#{staff},</if>
+        <if test="provenance != null and provenance != ''">#{provenance},</if>
+        <if test="userIds != null and userIds != '' ">#{userIds},</if>
+        <if test="releaseStatus != null and releaseStatus != '' ">#{releaseStatus},</if>
+        <if test="readStatus != null and readStatus != ''">#{readStatus},</if>
+        <if test="linkPath != null and linkPath != ''">#{linkPath},</if>
+        sysdate()
+        )
+    </insert>
+
+    <update id="updateNotice" parameterType="SysNotice">
+        update sys_notice
+        <set>
+            <if test="noticeTitle != null and noticeTitle != ''">notice_title = #{noticeTitle},</if>
+            <if test="noticeType != null and noticeType != ''">notice_type = #{noticeType},</if>
+            <if test="noticeContent != null">notice_content = #{noticeContent},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="updateUserId != null and updateUserId != ''">update_user_id = #{updateUserId},</if>
+            <if test="updateName != null and updateName != ''">update_name = #{updateName},</if>
+            <if test="roleIds != null and roleIds != ''">roleIds = #{roleIds},</if>
+            <if test="staff != null and staff != ''">staff = #{staff},</if>
+            <if test="provenance != null and provenance != ''">provenance = #{provenance},</if>
+            <if test="userIds != null and userIds != ''">user_ids = #{userIds},</if>
+            <if test="readStatus != null and readStatus !=''">read_status = #{readStatus},</if>
+            <if test="releaseStatus != null and releaseStatus != ''">release_status = #{releaseStatus},</if>
+            <if test="linkPath != null and linkPath != ''">link_path = #{linkPath},</if>
+            update_time = sysdate()
+        </set>
+        where notice_id = #{noticeId}
+    </update>
+
+    <delete id="deleteNoticeById" parameterType="Long">
+        delete from sys_notice where notice_id = #{noticeId}
+    </delete>
+
+    <delete id="deleteNoticeByIds" parameterType="Long">
+        delete from sys_notice where notice_id in
+        <foreach item="noticeId" collection="array" open="(" separator="," close=")">
+            #{noticeId}
+        </foreach>
+    </delete>
+
+
+    <!--//获取普通消息列表
+        List<SysNotice> getGeneralNoticeList(SysNotice notice);-->
+    <select id="getGeneralNoticeList" resultType="com.sygt.system.domain.SysNotice"
+            parameterType="com.sygt.system.domain.SysNotice">
+        select
+        a.notice_id,
+        a.notice_title,
+        a.notice_type,
+        case a.notice_type
+        when '1' then '普通消息'
+        when '2' then '系统消息'
+        else '' end noticeTypeName,
+        a.roleIds,
+        a.user_ids,
+        cast(a.notice_content as char) as notice_content,
+        status,
+        case a.release_status
+        when '0' then '未发布'
+        when '1' then '已发布'
+        else '' end releaseStatus,
+        case a.read_status
+        when '0' then '未读'
+        when '1' then '已读'
+        else '' end readStatus,
+        a.staff,
+        a.provenance,
+        a.link_path,
+        a.create_user_id,
+        a.create_name,
+        a.create_time,
+        a.update_user_id,
+        a.update_name,
+        a.update_time,
+        a.remark
+        from sys_notice a
+        left join sys_notice_user b on a.notice_id = b.n_id
+        where not exists (select n_id from sys_notice_user where user_id = #{userId} having a.notice_id = n_id )
+        and a.status = '0'
+        and a.release_status = '1'
+        and a.read_status = '0'
+        and a.notice_type = '1'
+        <if test="rolesList != null and userId != null">
+            and (a.roleIds is null and (a.user_ids is null or find_in_set(#{userId},a.user_ids) )
+            <if test="rolesList != null">
+                or
+                <foreach collection="rolesList" item="role" open="(" close=")" separator="or">
+                    find_in_set(#{role},a.roleIds)
+                </foreach>
+            </if>
+            <if test="userId != null">
+                or find_in_set(#{userId},a.user_ids)
+            </if>
+            )
+        </if>
+        group by a.notice_id
+        order by a.create_time desc
+    </select>
+
+    <!--//获取系统消息列表
+        List<SysNotice> getSysNoticeList(SysNotice notice);-->
+    <select id="getSysNoticeList" resultType="com.sygt.system.domain.SysNotice"
+            parameterType="com.sygt.system.domain.SysNotice">
+        select
+        a.notice_id,
+        a.notice_title,
+        a.notice_type,
+        case a.notice_type
+        when '1' then '通知'
+        when '2' then '公告'
+        when '3' then '准入管理消息'
+        when '4' then '危化品消息'
+        when '5' then '仪器管理消息'
+        when '6' then '预约管理消息'
+        when '7' then '私拿报警'
+        else '' end noticeTypeName,
+        a.roleIds,
+        a.user_ids,
+        cast(a.notice_content as char) as notice_content,
+        status,
+        case a.release_status
+        when '0' then '未发布'
+        when '1' then '已发布'
+        else '' end releaseStatus,
+        case a.read_status
+        when '0' then '未读'
+        when '1' then '已读'
+        else '' end readStatus,
+        a.staff,
+        a.provenance,
+        a.link_path,
+        a.create_user_id,
+        a.create_name,
+        a.create_time,
+        a.update_user_id,
+        a.update_name,
+        a.update_time,
+        a.remark
+        from sys_notice a
+        left join sys_notice_user b on a.notice_id = b.n_id
+        where not exists (select n_id from sys_notice_user where user_id = #{userId} having a.notice_id = n_id )
+        and a.status = '0'
+        and a.release_status = '1'
+        and a.read_status = '0'
+        and a.notice_type = '2'
+        <if test="rolesList != null and userId != null">
+            and (a.roleIds is null and (a.user_ids is null or find_in_set(#{userId},a.user_ids) )
+            <if test="rolesList != null">
+                or
+                <foreach collection="rolesList" item="role" open="(" close=")" separator="or">
+                    find_in_set(#{role},a.roleIds)
+                </foreach>
+            </if>
+            <if test="userId != null">
+                or find_in_set(#{userId},a.user_ids)
+            </if>
+            )
+        </if>
+        group by a.notice_id
+        order by a.create_time desc
+    </select>
+
+    <!--//根据不同的用户查询公告列表 and (notice_type = '1' or notice_type = '2')
+        List<SysNotice> selectNoticeListByUser(SysNotice notice);-->
+    <select id="selectNoticeListByUser" resultType="com.sygt.system.domain.SysNotice"
+            parameterType="com.sygt.system.domain.SysNotice">
+        select
+        notice_id,
+        notice_title,
+        notice_type,
+        case notice_type
+        when '1' then '通知'
+        when '2' then '公告'
+        when '3' then '准入管理消息'
+        when '4' then '危化品消息'
+        when '5' then '仪器管理消息'
+        when '6' then '预约管理消息'
+        when '7' then '私拿报警'
+        else '' end noticeTypeName,
+        roleIds,
+        user_ids,
+        cast(notice_content as char) as notice_content,
+        status,
+        case release_status
+        when '0' then '未发布'
+        when '1' then '已发布'
+        else '' end releaseStatus,
+        case read_status
+        when '0' then '未读'
+        when '1' then '已读'
+        else '' end readStatus,
+        staff,
+        provenance,
+        link_path,
+        create_user_id,
+        create_name,
+        create_time,
+        update_user_id,
+        update_name,
+        update_time,
+        remark
+        from sys_notice
+        where 1=1
+        <if test="rolesList != null or userId != null">
+            and (roleIds is null and (user_ids is null or find_in_set(#{userId},user_ids) )
+            <if test="rolesList != null">
+                or
+                <foreach collection="rolesList" item="role" open="(" close=")" separator="or">
+                    find_in_set(#{role},roleIds)
+                </foreach>
+            </if>
+            <if test="userId != null">
+                or find_in_set(#{userId},user_ids)
+            </if>
+            )
+        </if>
+        <if test="noticeTitle != null and noticeTitle != ''">
+            AND notice_title like concat('%', #{noticeTitle}, '%')
+        </if>
+        <if test="noticeType != null and noticeType != ''">
+            AND notice_type = #{noticeType}
+        </if>
+        <if test="createName != null and createName != ''">
+            AND create_name like concat('%', #{createName}, '%')
+        </if>
+        <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''">
+            and create_time between CONCAT(#{params.beginCreateTime},' 00:00:00') and CONCAT(#{params.endCreateTime},'
+            23:59:59')
+        </if>
+        <if test="ids != null and ids != ''">
+            and FIND_IN_SET(notice_id,#{ids})
+        </if>
+        order by create_time desc
+    </select>
+
+    <!-- //根据消息ID更新消息阅读状态
+        void updateNoticeRead(Long noticeId,String readStatus);-->
+    <update id="updateNoticeRead">
+        update sys_notice set read_status = #{readStatus} where notice_id = #{noticeId}
+    </update>
+
+
+</mapper>

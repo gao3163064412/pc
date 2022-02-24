@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sygt.system.mapper.SysNoticeUserMapper">
+
+    <resultMap type="SysNoticeUser" id="SysNoticeUserResult">
+        <result property="id" column="id"/>
+        <result property="nId" column="n_id"/>
+        <result property="userId" column="user_id"/>
+    </resultMap>
+
+    <sql id="selectSysNoticeUserVo">
+        select id, n_id, user_id from sys_notice_user
+    </sql>
+
+    <select id="selectSysNoticeUserList" parameterType="SysNoticeUser" resultMap="SysNoticeUserResult">
+        <include refid="selectSysNoticeUserVo"/>
+        <where>
+            <if test="nId != null ">and n_id = #{nId}</if>
+            <if test="userId != null ">and user_id = #{userId}</if>
+        </where>
+    </select>
+
+    <select id="selectSysNoticeUserById" parameterType="Long" resultMap="SysNoticeUserResult">
+        <include refid="selectSysNoticeUserVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSysNoticeUser" parameterType="SysNoticeUser">
+        insert into sys_notice_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="nId != null">n_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="read != null">read,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="nId != null">#{nId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="read != null">#{read},</if>
+        </trim>
+        on duplicate key update n_id = #{nId},user_id = #{userId}
+    </insert>
+
+    <update id="updateSysNoticeUser" parameterType="SysNoticeUser">
+        update sys_notice_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="nId != null">n_id = #{nId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysNoticeUserById" parameterType="Long">
+        delete from sys_notice_user where id = #{id}
+    </delete>
+
+    <delete id="deleteSysNoticeUserByIds" parameterType="String">
+        delete from sys_notice_user where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--//根据用户查询已读的消息
+        List<SysNoticeUser> findSysNoticeUserListByUserId(Long userId);-->
+    <select id="findSysNoticeUserListByUserId" resultMap="SysNoticeUserResult">
+        <include refid="selectSysNoticeUserVo"/>
+        where user_id = #{userId}
+    </select>
+
+</mapper>

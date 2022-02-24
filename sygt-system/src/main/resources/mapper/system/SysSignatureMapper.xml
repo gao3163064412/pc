@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sygt.system.mapper.SysSignatureMapper">
+
+    <resultMap type="SysSignature" id="SysSignatureResult">
+        <result property="id" column="id"/>
+        <result property="signatureName" column="signature_name"/>
+        <result property="isSignatureType" column="is_signature_type"/>
+        <result property="picturePath" column="picture_path"/>
+        <result property="createUserId" column="create_user_id"/>
+        <result property="createName" column="create_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateUserId" column="update_user_id"/>
+        <result property="updateName" column="update_name"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="version" column="version"/>
+    </resultMap>
+
+    <sql id="selectSysSignatureVo">
+        select id, signature_name, is_signature_type, picture_path, create_user_id, create_name, create_time, update_user_id, update_name, update_time, del_flag, version from sys_signature
+    </sql>
+
+    <select id="selectSysSignatureList" parameterType="SysSignature" resultMap="SysSignatureResult">
+        select
+        a.id,
+        a.signature_name,
+        a.is_signature_type,
+        b.dict_label as "signatureTypeName",
+        a.picture_path,
+        a.create_user_id,
+        a.create_name,
+        a.create_time,
+        a.update_user_id,
+        a.update_name,
+        a.update_time,
+        a.del_flag,
+        a.version
+        from sys_signature a
+        left join sys_dict_data b on a.is_signature_type = b.dict_code
+        where 1=1
+        <if test="signatureName != null  and signatureName != ''">
+            and a.signature_name like concat('%',#{signatureName}, '%')
+        </if>
+        <if test="isSignatureType != null  and isSignatureType != ''">
+            and a.is_signature_type = #{isSignatureType}
+        </if>
+        and a.del_flag = 0
+        order by a.create_time desc
+    </select>
+
+    <select id="selectSysSignatureById" parameterType="Long" resultMap="SysSignatureResult">
+        <include refid="selectSysSignatureVo"/>
+        where id = #{id} and del_flag = 0
+    </select>
+
+    <insert id="insertSysSignature" parameterType="SysSignature">
+        insert into sys_signature
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="signatureName != null">signature_name,</if>
+            <if test="isSignatureType != null">is_signature_type,</if>
+            <if test="picturePath != null">picture_path,</if>
+            <if test="createUserId != null">create_user_id,</if>
+            <if test="createName != null">create_name,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateUserId != null">update_user_id,</if>
+            <if test="updateName != null">update_name,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="version != null">version,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="signatureName != null">#{signatureName},</if>
+            <if test="isSignatureType != null">#{isSignatureType},</if>
+            <if test="picturePath != null">#{picturePath},</if>
+            <if test="createUserId != null">#{createUserId},</if>
+            <if test="createName != null">#{createName},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateUserId != null">#{updateUserId},</if>
+            <if test="updateName != null">#{updateName},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="version != null">#{version},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysSignature" parameterType="SysSignature">
+        update sys_signature
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="signatureName != null">signature_name = #{signatureName},</if>
+            <if test="isSignatureType != null">is_signature_type = #{isSignatureType},</if>
+            <if test="picturePath != null">picture_path = #{picturePath},</if>
+            <if test="createUserId != null">create_user_id = #{createUserId},</if>
+            <if test="createName != null">create_name = #{createName},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateUserId != null">update_user_id = #{updateUserId},</if>
+            <if test="updateName != null">update_name = #{updateName},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="version != null">version = #{version},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysSignatureById" parameterType="Long">
+        update sys_signature set del_flag = 1
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteSysSignatureByIds" parameterType="String">
+        update sys_signature set del_flag = 1 where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
